@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String @id @default(ulid())
+  familyName  String @map("family_name")
+  givenName   String @map("given_name")
+  fullName    String @default(dbgenerated()) @map("full_name")
+
+  @@map("users")
+}
+
+model Location {
+  id        String  @id @default(ulid())
+  name      String
+  latitude  Float
+  longitude Float
+  point     Unsupported("geography(Point, 4326)") @default(dbgenerated())
+
+  @@index([point], type: Gist)
+
+  @@map("locations")
+}
+
+model Log {
+  id        String   @id @default(ulid())
+  message   Json
+  userId    String?  @default(dbgenerated()) @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("logs")
+}
